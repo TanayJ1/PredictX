@@ -1,3 +1,4 @@
+import os
 import sys
 from pathlib import Path
 
@@ -21,7 +22,20 @@ from src.data.load_data import load_data
 # --------------------------------------------------
 
 MODEL_DIR = ROOT / "models"
-API_URL = "http://127.0.0.1:8000"
+
+
+def _get_api_url():
+    """Prediction API address: env var, then Streamlit secrets, then local default."""
+    url = os.environ.get("PREDICTX_API_URL")
+    if not url:
+        try:
+            url = st.secrets["PREDICTX_API_URL"]
+        except Exception:
+            url = None
+    return (url or "http://127.0.0.1:8000").rstrip("/")
+
+
+API_URL = _get_api_url()
 SENSORS = [f"sensor_{i}" for i in range(1, 22)]
 RISK_ORDER = ["CRITICAL", "HIGH", "MODERATE", "LOW"]
 RISK_COLORS = {
